@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mester Irányítópult - Csináld magad Mesterrel!</title>
+    <!-- FontAwesome for modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css?v=1.2">
+</head>
+<body class="admin-body">
+
+    <!-- LOGIN PANEL -->
+    <div class="login-container" id="login-container">
+        <div class="login-card">
+            <div class="login-icon">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <h2>Mester Admin</h2>
+            <p>Jelentkezz be a foglalások és referenciák kezeléséhez.</p>
+            
+            <div class="login-error" id="login-error">
+                Helytelen jelszó! Kérjük próbáld újra.
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group" style="text-align: left;">
+                    <label for="admin-password">Jelszó</label>
+                    <input type="password" id="admin-password" placeholder="Add meg az admin jelszót..." required>
+                    <small style="color: var(--text-muted); margin-top: 5px; display: block;">
+                        Tipp: A teszt jelszó: <strong>admin</strong>
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    Bejelentkezés <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+            </form>
+            <div style="margin-top: 20px;">
+                <a href="index.html" style="font-size: 0.85rem; color: var(--primary);"><i class="fa-solid fa-arrow-left"></i> Vissza a főoldalra</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN DASHBOARD -->
+    <div class="admin-layout" id="admin-layout" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar">
+            <div>
+                <div class="admin-brand">
+                    <i class="fa-solid fa-trowel-bricks"></i> Mester<span>Admin</span>
+                </div>
+                <ul class="admin-menu">
+                    <li class="admin-menu-item active" data-panel="bookings">
+                        <i class="fa-regular fa-calendar-check"></i> Foglalások
+                    </li>
+                    <li class="admin-menu-item" data-panel="references">
+                        <i class="fa-solid fa-images"></i> Referenciák (CMS)
+                    </li>
+                    <li class="admin-menu-item" data-panel="sync">
+                        <i class="fa-solid fa-rotate"></i> Naptár Szinkron
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="admin-logout">
+                <div class="admin-menu-item" id="logout-btn" style="color: #f1c40f;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Kijelentkezés
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted-dark); margin-top: 15px; text-align: center;">
+                    Csináld magad Mesterrel! &copy; 2026
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <h1 id="admin-panel-title">Foglalások Kezelése</h1>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="index.html" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.85rem;" target="_blank">
+                        Főoldal megtekintése <i class="fa-solid fa-up-right-from-square"></i>
+                    </a>
+                    <span style="font-size: 0.9rem; font-weight: 600; color: var(--secondary);">De Jesus Peres Sean</span>
+                </div>
+            </header>
+
+            <!-- PANEL 1: BOOKINGS -->
+            <section class="admin-panel active" id="panel-bookings">
+                <div class="booking-filters">
+                    <button class="filter-btn active" data-filter="all">Összes</button>
+                    <button class="filter-btn" data-filter="pending">Függőben</button>
+                    <button class="filter-btn" data-filter="accepted">Elfogadva</button>
+                    <button class="filter-btn" data-filter="rejected">Elutasítva</button>
+                </div>
+
+                <div class="booking-table-container">
+                    <table class="booking-table">
+                        <thead>
+                            <tr>
+                                <th>Dátum</th>
+                                <th>Megrendelő</th>
+                                <th>Kapcsolat</th>
+                                <th>Helyszín</th>
+                                <th>Leírás</th>
+                                <th>Státusz</th>
+                                <th>Műveletek</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body">
+                            <!-- Dynamically loaded bookings -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 2: REFERENCES CMS -->
+            <section class="admin-panel" id="panel-references">
+                <div class="cms-grid">
+                    <!-- Left: References list -->
+                    <div class="cms-list">
+                        <h3>Meglévő Referenciák</h3>
+                        <div id="cms-items-container">
+                            <!-- Reference items loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Add/Edit Form -->
+                    <div class="cms-form">
+                        <h3 id="cms-form-title">Új Referencia Hozzáadása</h3>
+                        <form id="reference-form">
+                            <input type="hidden" id="ref-id" name="ref-id">
+                            
+                            <div class="form-group">
+                                <label for="ref-title">Projekt címe *</label>
+                                <input type="text" id="ref-title" placeholder="pl. Kerti kemence és grill pult" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="ref-description">Rövid leírás *</label>
+                                <textarea id="ref-description" rows="4" placeholder="Mutasd be a feladatot, ki segített be és hogyan..." required></textarea>
+                            </div>
+
+                            <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label for="ref-savings">Megtakarítás (Ft) *</label>
+                                    <input type="text" id="ref-savings" placeholder="pl. 150 000 Ft" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ref-duration">Munkaidő (napok) *</label>
+                                    <input type="text" id="ref-duration" placeholder="pl. 3 nap" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ref-involvement">Megrendelői segítség *</label>
+                                <input type="text" id="ref-involvement" placeholder="pl. Anyagmozgatás, habarcskeverés" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Projekt képe *</label>
+                                <div class="image-upload-area" id="image-upload-area">
+                                    <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                    <p>Kattints a kép feltöltéséhez, vagy húzd ide!</p>
+                                    <input type="file" id="ref-file-input" accept="image/*">
+                                    <input type="hidden" id="ref-image-data">
+                                </div>
+                                <img src="" alt="Előnézet" class="upload-preview" id="upload-preview">
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="btn btn-primary" id="ref-submit-btn" style="flex: 1;">
+                                    Hozzáadás
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="ref-cancel-btn" style="display: none;">
+                                    Mégse
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL 3: GOOGLE CALENDAR SYNC -->
+            <section class="admin-panel" id="panel-sync">
+                <div class="sync-card">
+                    <h3>Google Naptár Kétirányú Szinkronizáció</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">
+                        Kössd össze a rendszert a Google Naptáraddal! Az elfogadott időpontok automatikusan szinkronizálódnak, és a naptárban csak a Google-ben is szabad napok lesznek választhatóak a látogatóknak.
+                    </p>
+
+                    <div class="sync-status" id="sync-status-box">
+                        <div class="sync-status-indicator"></div>
+                        <span id="sync-status-text">Állapot: Nincs összekapcsolva</span>
+                    </div>
+
+                    <form id="sync-settings-form">
+                        <div class="switch-group">
+                            <label for="sync-enable-toggle">Szinkronizáció engedélyezése</label>
+                            <label class="switch">
+                                <input type="checkbox" id="sync-enable-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sync-api-key">Google Calendar API kulcs (vagy Service Account JSON)</label>
+                            <input type="password" id="sync-api-key" placeholder="AIzaSyA1...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sync-calendar-id">Google Naptár ID (Calendar ID)</label>
+                            <input type="email" id="sync-calendar-id" placeholder="pl. primary vagy valami@group.calendar.google.com">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: 15px; width: 100%;">
+                            Szinkronizációs Beállítások Mentése
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    <!-- Lightbox Modal for Workspace Images -->
+    <div id="lightbox-modal" class="lightbox-modal" style="display: none;">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <div class="lightbox-modal-content">
+            <img id="lightbox-img" src="" alt="Nagyított kép">
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
